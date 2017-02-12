@@ -2,6 +2,7 @@ import platform
 import os
 import subprocess
 import time
+import math
 from os.path import join, getsize
 
 interval_sec = 60
@@ -36,7 +37,7 @@ def loop(path, is_downloading=True):
         size = get_dir_size(path)
         if size != 0:
             print('Still downloading... current size: {} GB'
-                  .format(round(size / (1024 * 1024), 2)))
+                  .format(round(size / math.pow(1024, 3), 2)))
             loop(path)
         else:
             print('Download finished!')
