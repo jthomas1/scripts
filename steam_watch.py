@@ -7,9 +7,17 @@ from os.path import join, getsize
 
 interval_sec = 60
 
-default_dirs = [
-    'C:\\Program Files (x86)\\Steam\\steamapps\\downloading',
-    'E:\\Games\\SteamLibrary\\steamapps\\downloading'
+# items in dirs appear in the menu as quick options
+
+dirs = [
+    {
+        'name': 'C:\\SteamLibrary',
+        'path': 'C:\\Program Files (x86)\\Steam\\steamapps\\downloading'
+    },
+    {
+        'name': 'E:\\SteamLibrary',
+        'path': 'E:\\Games\\SteamLibrary\\steamapps\\downloading'
+    }
 ]
 
 
@@ -31,29 +39,47 @@ def shutdown():
         subprocess.call(['shutdown', '-h', 'now'])
 
 
-def loop(path, is_downloading=True):
+def wait(path, is_downloading=True):
     if(is_downloading):
         time.sleep(interval_sec)
         size = get_dir_size(path)
         if size != 0:
             print('Still downloading... current size: {} GB'
                   .format(round(size / math.pow(1024, 3), 2)))
-            loop(path)
+            wait(path)
         else:
             print('Download finished!')
             shutdown()
 
 
 def prompt():
-    choice = int(input('\n\t[1] C:\SteamApps\n\t[2] E:\SteamApps\n\t[3] Other\n\nPick a number: '))
+    msg = '\n\t[0] Custom'
 
-    if choice is 3:
-        path = input('\nDirectory to watch: ')
-    else:
-        path = default_dirs[choice - 1]
+    for key, val in enumerate(dirs):
+        msg += '\n\t[{}] {}'.format(key + 1, val['name'])
 
-    print('Watching directory: {}'.format(path))
-    loop(path)
+    msg += '\n\nPick a number: '
+
+    choice = input(msg)
+
+    try:
+        choice = int(choice)
+
+        if choice < 0 or choice > len(dirs):
+            print('Invalid choice: {}'.format(choice))
+            prompt()
+        else:
+            path = ''
+            if choice is 0:
+                path = input('\nDirectory to watch: ')
+            else:
+                path = dirs[choice - 1]['path']
+
+            print('Watching directory: {}'.format(path))
+            wait(path)
+    except:
+        print('\n\n\tInvalid choice: {}\n\nChoose again...'.format(choice))
+        prompt()
 
 
 prompt()
