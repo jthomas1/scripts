@@ -8,6 +8,7 @@ from os.path import join, getsize
 interval_sec = 60
 
 # items in dirs appear in the menu as quick options
+# leave the list empty to skip options and input manually
 
 dirs = [
     {
@@ -52,34 +53,47 @@ def wait(path, is_downloading=True):
             shutdown()
 
 
-def prompt():
-    msg = '\n\t[0] Custom'
+def custom():
+    path = input('\nDirectory to watch: ')
 
-    for key, val in enumerate(dirs):
-        msg += '\n\t[{}] {}'.format(key + 1, val['name'])
-
-    msg += '\n\nPick a number: '
-
-    choice = input(msg)
-
-    try:
-        choice = int(choice)
-
-        if choice < 0 or choice > len(dirs):
-            print('Invalid choice: {}'.format(choice))
-            prompt()
-        else:
-            path = ''
-            if choice is 0:
-                path = input('\nDirectory to watch: ')
-            else:
-                path = dirs[choice - 1]['path']
-
-            print('Watching directory: {}'.format(path))
-            wait(path)
-    except:
-        print('\n\n\tInvalid choice: {}\n\nChoose again...'.format(choice))
+    if os.path.exists(path) and os.path.isdir(path):
+        print('Watching directory: {}'.format(path))
+        wait(path)
+    else:
+        print('\n\n\tNot a directory: {}\n\n\tPlease check it exists!'.format(path))
         prompt()
+
+
+def prompt():
+    if len(dirs) == 0:
+        custom()
+    else:
+        msg = '\n\t[0] Custom'
+
+        for key, val in enumerate(dirs):
+            msg += '\n\t[{}] {}'.format(key + 1, val['name'])
+
+        msg += '\n\nPick a number: '
+
+        choice = input(msg)
+
+        try:
+            choice = int(choice)
+
+            if choice < 0 or choice > len(dirs):
+                print('Invalid choice: {}'.format(choice))
+                prompt()
+            else:
+                path = ''
+                if choice is 0:
+                    custom()
+                else:
+                    path = dirs[choice - 1]['path']
+                    print('Watching directory: {}'.format(path))
+                    wait(path)
+        except:
+            print('\n\n\tInvalid choice: {}\n\nChoose again...'.format(choice))
+            prompt()
 
 
 prompt()
