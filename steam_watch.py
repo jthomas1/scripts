@@ -96,4 +96,5 @@ def prompt():
             prompt()
 
 
-prompt()
+if __name__ == "__main__":
+    prompt()
